@@ -7,7 +7,8 @@ $currentDate = Get-Date
 # Create the folder structure
 $year = $currentDate.Year.ToString()
 $month = $currentDate.ToString("MMMM")
-$week = "Week" + [math]::Ceiling($currentDate.Day / 7).ToString()
+# $week = "Week" + [math]::Ceiling($currentDate.Day / 7).ToString()
+$week = "Week" + [math]::Ceiling(($date + [int]$currentDate.DayOfWeek) / 7)
 $date = $currentDate.Day
 $day = $currentDate.DayOfWeek.ToString()
 $shortDay = $day.Substring(0, 3)
