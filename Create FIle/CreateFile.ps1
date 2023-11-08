@@ -19,7 +19,10 @@ $DayOfYear=(Get-date).DayOfYear
 $start = Get-Date '2023-06-05'  
 $end = Get-Date
 $today=$end-$start
-$myday = $today.Days
+$totalDays = $today.Days
+$totalWeeks=$totalDays/7
+$weekEnd=[math]::Round($totalWeeks)*2
+$myday=$totalDays-$weekEnd
 
 
 
