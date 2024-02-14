@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Mail</title>
+    <style>
+        .super-message {
+          font-size: 25px;
+          color: crimson;
+          text-align: center;
+          margin: auto;
+          padding: 20%;
+          font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+        </style>
+</head>
+<body>
+
+    <div class="super-message">
+        Opening Outlook for Status Update. Please complete your work earlier.
+      </div>
+</body>
+<script>
+    const to = 'rbalasubramanian@newdreamdatasystems.com';
+    const cc1 = 'bselvaraj@newdreamdatasystems.com';
+    const cc2 = 'dsivasubramaniyan@newdreamdatasystems.com';
+    const subject = '[SnapLogic] [DEV] - Status as of '+new Date().toLocaleString('en-us',{month:'short', day: 'numeric', year:'numeric'});
+    const mailtoLink = `mailto:${to}?cc=${cc1};${cc2}&subject=${encodeURIComponent(subject)}`;
+    window.location.href = mailtoLink;
+</script>
+</html>
