@@ -20,6 +20,13 @@ if exist "C:\Program Files\Microsoft VS Code\code.exe" (
             PAUSE
         )
 )
+
+@REM REPLACED WITH POWERSHELL
+@REM if exist "C:\Users\hrashad\Desktop\rashad.rdp" (
+@REM         start "" "C:\Users\hrashad\Desktop\rashad.rdp"
+@REM         echo|set /p=Newdream@123|clip
+@REM             echo "Opening Virtual Machine"
+@REM         )
 endlocal
 
 

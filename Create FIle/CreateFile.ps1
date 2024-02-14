@@ -1,3 +1,9 @@
+#set to clipboard
+Set-Clipboard -Value "Newdream@123"
+
+#Opening a Virtul Machine
+Start-Process 'C:\Users\hrashad\Desktop\rashad.rdp'
+
 # Define the base directory
 $baseDir = "C:\Users\hrashad\OneDrive - newdreamdatasystems.com\Note\"
 
@@ -7,13 +13,15 @@ $currentDate = Get-Date
 # Create the folder structure
 $year = $currentDate.Year.ToString()
 $month = $currentDate.ToString("MMMM")
-# $week = "Week" + [math]::Ceiling($currentDate.Day / 7).ToString()
-$week = "Week" + [math]::Ceiling(($date + [int]$currentDate.DayOfWeek) / 7)
 $date = $currentDate.Day
+$week = "Week" + [math]::Ceiling($currentDate.Day / 7).ToString() #VERSION1
+# $week = "Week" + [math]::Ceiling(($date + [int]$currentDate.DayOfWeek) / 7).ToString() #VERSION2
 $day = $currentDate.DayOfWeek.ToString()
 $shortDay = $day.Substring(0, 3)
 
-$DayOfYear=(Get-date).DayOfYear
+# $DayOfYear=(Get-date).DayOfYear
+
+
 
 
 $start = Get-Date '2023-06-05'  
@@ -42,6 +50,7 @@ if (-Not (Test-Path -Path $textFileName)) {
 } else {
     Write-Host "File already exists: $textFileName"
 }
+
 
 # how to add content to the text file if needed
 # Add-Content -Path $textFileName -Value "This is the content of the file."
@@ -113,4 +122,6 @@ Write-Host "Saved to '$destinationFilePath'."
 
 }else {
     Write-Host "Timesheet already exists: $destinationFilePath"
+    exit
 }
+
