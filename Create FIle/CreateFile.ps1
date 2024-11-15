@@ -1,11 +1,8 @@
-#set to clipboard
-Set-Clipboard -Value "Newdream@123"
-
-#Opening a Virtul Machine
-Start-Process 'C:\Users\hrashad\Desktop\rashad.rdp'
-
 # Define the base directory
-$baseDir = "C:\Users\hrashad\OneDrive - newdreamdatasystems.com\Note\"
+$baseDir = "C:\Users\hrashad\OneDrive - Newdream Data Systems\Note\"
+
+#For Lunch report expotation
+$reportDir = "C:\Users\hrashad\OneDrive - Newdream Data Systems\Reports"
 
 # Get the current date
 $currentDate = Get-Date
@@ -32,7 +29,25 @@ $totalWeeks=$totalDays/7
 $weekEnd=[math]::Round($totalWeeks)*2
 $myday=$totalDays-$weekEnd
 
+$dayOff = Get-Date '2026-06-05'
+$remDays = ($dayOff - $end).Days
+$remYear = $remDays/365.25
+$remMonths = $remDays/30.44
+$remWeeks = $remDays/7
 
+$passedOffDays = [math]::Round($weekEnd) # (Expected Sat and Sunday => $remWeeks*2) and (CL + SL + Expected Public per Yr => 12+6+10=28)
+
+$expOffDays = [math]::Round(($remWeeks*2) + ($remYear*28)) # (Expected Sat and Sunday => $remWeeks*2) and (CL + SL + Expected Public per Yr => 12+6+10=28)
+$expWorkDays = [math]::Round($remDays - $expOffDays) 
+
+Write-Host "`nDays Passed: "$today.Days
+Write-Host "~ Passed Working Days: " $myday
+Write-Host "~ Passed Off Days: " $passedOffDays
+
+Write-Host "`nDays Remains: " $remDays 
+Write-Host "~ Exp Working Days: " $expWorkDays
+Write-Host "~ Exp Off Days`t`t: " $expOffDays
+PAUSE
 
 $folderPath = Join-Path -Path $baseDir -ChildPath "$year\$month\$week\"
 New-Item -Path $folderPath -ItemType Directory -Force
@@ -40,7 +55,27 @@ New-Item -Path $folderPath -ItemType Directory -Force
 # Create a text file
 $textFileName = Join-Path -Path $folderPath -ChildPath "$date-$shortDay ($myday).txt"
 $FileDate = Get-Date -Format "dddd, d MMMM yyyy %h:mm"
-$FileContent= "$FileDate"
+
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# Get the last system startup time from the event log
+$startupEvent = Get-WinEvent -LogName System | Where-Object { $_.Id -eq 6005 } | Select-Object -First 1
+
+
+if ($startupEvent) {
+    # Get the startup time
+    $startupTime = $startupEvent.TimeCreated
+    $FileContent = "System Startup Time: `n"+$startupTime.ToString("dddd, d MMMM yyyy HH:mm")
+    Write-Host "System Startup Time: $FileContent"
+} else {
+    # Get the current time
+    $FileContent= "No startup event found. `nCurrent Time: $FileDate"
+    Write-Host "No startup event found."
+}
+
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
 
 #Create a File if not exists
 if (-Not (Test-Path -Path $textFileName)) {
@@ -60,7 +95,7 @@ $pathToOpen = "$baseDir$year\$month\$week\$date-$shortDay ($myday).txt"
 # Start-Sleep -Seconds 5
 
 # if (Test-Path "C:\Program Files\Microsoft VS Code\code.exe") {
-#     Start-Process "C:\Program Files\Microsoft VS Code\code.exe" -ArgumentList "C:\Users\hrashad\OneDrive - newdreamdatasystems.com\Note\2023\October\Week1\3-Tuesday.txt"
+#     Start-Process "C:\Program Files\Microsoft VS Code\code.exe" -ArgumentList "C:\Users\hrashad\OneDrive - Newdream Data Systems\Note\2023\October\Week1\3-Tuesday.txt"
 # } else {
 #     Write-Host "Visual Studio Code is not installed. Please install it to open the file."
 # }
@@ -79,8 +114,8 @@ $month = $currentDate.Month
 $day = (Get-Date -Year $year -Month $month -Day 1).AddMonths(1).AddDays(-1).Day
 $currentMonth = $currentDate.ToString("MMMM")
 
-$sourceFilePath = "C:\Users\hrashad\OneDrive - newdreamdatasystems.com\Note\Timesheet_source.xlsx"
-$destinationFilePath = "C:\Users\hrashad\OneDrive - newdreamdatasystems.com\Note\$year\$currentMonth\Timesheet - $currentMonth $year.xlsx"
+$sourceFilePath = "C:\Users\hrashad\OneDrive - Newdream Data Systems\Note\Timesheet_source.xlsx"
+$destinationFilePath = "C:\Users\hrashad\OneDrive - Newdream Data Systems\Note\$year\$currentMonth\Timesheet - $currentMonth $year.xlsx"
 
 
 if (-Not (Test-Path -Path $destinationFilePath)) {
@@ -101,8 +136,10 @@ while ($day -ge 1) {
         $sourceSheet.Copy($newSheet)
         $newSheet.Name = $sheetName
 
-        $sheetDate = $date.ToString("MM/dd/yyyy")
-        $newSheet.Cells.Item(8, 1) = $sheetDate
+        # Below is used in SheetName Old from Timesheet_source
+        # And its removed for updated template sheet named source from effective date of February 29, 2024
+        # $sheetDate = $date.ToString("MM/dd/yyyy")
+        # $newSheet.Cells.Item(8, 1) = $sheetDate
     }
     $day--
 }
@@ -122,6 +159,53 @@ Write-Host "Saved to '$destinationFilePath'."
 
 }else {
     Write-Host "Timesheet already exists: $destinationFilePath"
-    exit
+    # exit
 }
 
+
+
+## FOLLOWING FOR LUNCH REPORT EXPORT
+    $lastMonthDate = $currentDate.AddMonths(-1)
+    $lastMonthName = $lastMonthDate.ToString("MMM")
+    $lastMonthYear = $lastMonthDate.Year
+    $formattedLastMonth = "{0} {1}" -f $lastMonthName, $lastMonthYear
+    #Path declaration
+        $ReportLocation = "$reportDir\Lunch Report\$lastMonthYear"
+    #File Name Declaration
+        $lastMonthReportName = "$ReportLocation\$formattedLastMonth.pdf"
+    #VBS File
+        $pathToGetLunchReport = "E:\getLunchReport.vbs"
+        
+    Write-Host "Is last month Lunch report already exported?"
+
+    if (-Not (Test-Path -Path $lastMonthReportName)) {
+        Write-Host "No :("
+
+        if (-Not (Test-Path -Path $pathToGetLunchReport)) {
+            Read-Host "Export failed. Unable to find $pathToGetLunchReport"
+        }else{
+            #Creating dir before exporting file to avoid errors
+                New-Item -Path $ReportLocation -ItemType Directory -Force
+                Write-Host "Dir creation forced at $ReportLocation"
+
+            wscript $pathToGetLunchReport
+            Write-Host "Running getLunchReport.vbs to export lunch report"
+        }
+
+    }else{
+            Write-Host "Yes ;)"
+            Write-Host "Report already exists: $lastMonthReportName"
+    }
+    
+
+
+
+#set to clipboard
+# Set-Clipboard -Value "Newdream@123"
+#Set-Clipboard -Value "Rashad@NDS"
+Set-Clipboard -Value "RAS@nds.0506" #Effective from 02 July 2024
+
+#Opening a Virtul Machine
+Start-Process 'C:\Users\hrashad\Desktop\rashad.rdp'
+
+exit
